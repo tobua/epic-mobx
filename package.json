@@ -1,0 +1,44 @@
+{
+  "name": "epic-mobx",
+  "description": "Easily create nested observable structures in MobX.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Matthias Giger",
+  "scripts": {
+    "start": "padua watch",
+    "build": "padua build",
+    "test": "padua test"
+  },
+  "peerDependencies": {
+    "mobx": "^6.3.2"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": "./dist/index.js",
+  "sideEffects": false,
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "mobx": "^6.3.2",
+    "padua": "^0.3.7"
+  },
+  "prettier": "padua/configuration/.prettierrc.json",
+  "eslintConfig": {
+    "extends": "./node_modules/padua/configuration/eslint.cjs"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "./tsconfig.json"
+      }
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
+  },
+  "engines": {
+    "node": ">= 14"
+  }
+}
