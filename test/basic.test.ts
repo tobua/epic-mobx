@@ -71,3 +71,21 @@ test('Warning if second argument is not a class.', () => {
   expect(consoleWarnMock.mock.calls.length).toEqual(1)
   expect(consoleWarnMock.mock.calls[0][0]).toEqual('Type needs to be a class.')
 })
+
+test('List is added to Store and can be accessed.', () => {
+  createStore([1, 2], NestedClass)
+
+  expect(Store.list).toBeDefined()
+  expect(Store.list[0].count).toBe(1)
+  expect(Store.list[1].count).toBe(2)
+  expect(Store.list.length).toBe(2)
+})
+
+test('Nested store can be added with extend.', () => {
+  createStore([1, 2], NestedClass)
+
+  Store.list.extend(3)
+
+  expect(Store.list.length).toBe(3)
+  expect(Store.list[2].count).toBe(3)
+})

@@ -7,14 +7,16 @@ interface INestedObservableArray<T> extends IObservableArray<T> {
 }
 
 export const nestable = <T>(initial: T[], Type: Class) => {
-  const wrapper = observable(initial)
-
   if (
     process.env.NODE_ENV !== 'production' &&
     !(typeof Type === 'function' && /^\s*class\s+/.test(Type.toString()))
   ) {
     console.warn('Type needs to be a class.')
+    return null
   }
+
+  const initialInstanes = initial.map((value) => new Type(value))
+  const wrapper = observable(initialInstanes)
 
   ;(wrapper as INestedObservableArray<T>).extend = (value: T) => {
     wrapper.push(new Type(value))
