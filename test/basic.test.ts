@@ -89,3 +89,17 @@ test('Nested store can be added with extend.', () => {
   expect(Store.list.length).toBe(3)
   expect(Store.list[2].count).toBe(3)
 })
+
+test('Nested stores can be removed.', () => {
+  createStore([1, 2], NestedClass)
+
+  expect(Store.list.length).toEqual(2)
+
+  const secondNestedStore = Store.list[1]
+
+  expect(secondNestedStore.remove).toBeDefined()
+
+  secondNestedStore.remove()
+
+  expect(Store.list.length).toEqual(1)
+})

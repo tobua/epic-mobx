@@ -15,12 +15,24 @@ export const nestable = <T>(initial: T[], Type: Class) => {
     return null
   }
 
-  const initialInstanes = initial.map((value) => new Type(value))
-  const wrapper = observable(initialInstanes)
+  let observableList: IObservableArray<ExtendedType>
 
-  ;(wrapper as INestedObservableArray<T>).extend = (value: T) => {
-    wrapper.push(new Type(value))
+  class ExtendedType extends Type {
+    remove() {
+      const found = observableList.find((item) => item === this)
+      observableList.remove(found)
+    }
   }
 
-  return wrapper as INestedObservableArray<T>
+  const initialInstanes = initial.map((value) => new ExtendedType(value))
+  observableList = observable(initialInstanes)
+
+  Object.defineProperty(observableList, 'extend', {
+    value: (value: T) => {
+      observableList.push(new ExtendedType(value))
+    },
+    enumerable: true,
+  })
+
+  return observableList as INestedObservableArray<ExtendedType>
 }
