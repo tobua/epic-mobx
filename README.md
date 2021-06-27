@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/tobua/epic-mobx/raw/main/logo.png" alt="epic-mobx" height="200">
+</p>
+
 # epic-mobx
 
 Easy nested observable structures in MobX.
@@ -29,4 +33,7 @@ Store.list[1].count === 2
 Store.list.extend(3)
 
 Store.list[2].count === 3
+
+// Remove individual elements without a reference to the containing store.
+Store.list[1].remove()
 ```
