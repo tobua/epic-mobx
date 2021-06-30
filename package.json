@@ -1,7 +1,7 @@
 {
   "name": "epic-mobx",
-  "description": "Easily create nested observable structures in MobX.",
-  "version": "1.0.0",
+  "description": "Makes it easy to work with lists of nested stores in MobX.",
+  "version": "0.1.0",
   "license": "MIT",
   "author": "Matthias Giger",
   "scripts": {

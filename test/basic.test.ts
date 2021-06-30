@@ -6,6 +6,7 @@ class NestedClass {
 
   constructor(value: number) {
     this.count = value
+    makeAutoObservable(this, {}, { autoBind: true })
   }
 
   double() {
@@ -69,7 +70,9 @@ test('Warning if second argument is not a class.', () => {
   createStore([1, 2], {})
 
   expect(consoleWarnMock.mock.calls.length).toEqual(1)
-  expect(consoleWarnMock.mock.calls[0][0]).toEqual('Type needs to be a class.')
+  expect(consoleWarnMock.mock.calls[0][0]).toContain(
+    'Type needs to be a class.'
+  )
 })
 
 test('List is added to Store and can be accessed.', () => {
@@ -102,4 +105,45 @@ test('Nested stores can be removed.', () => {
   secondNestedStore.remove()
 
   expect(Store.list.length).toEqual(1)
+})
+
+test('Works with empty initial values and inline type.', () => {
+  const list = nestable([] as number[], NestedClass)
+
+  expect(list.length).toEqual(0)
+
+  list.extend(1)
+
+  expect(list.length).toEqual(1)
+})
+
+test('Works with empty initial values and generic types.', () => {
+  const list = nestable<number, typeof NestedClass>([], NestedClass)
+
+  expect(list.length).toEqual(0)
+
+  list.extend(1)
+
+  expect(list.length).toEqual(1)
+})
+
+test('Works with object types.', () => {
+  type Car = {
+    color: string
+    speed: number
+  }
+
+  const list = nestable([{ color: 'blue', speed: 55 }] as Car[], NestedClass)
+
+  expect(list.length).toEqual(1)
+
+  list.extend({ color: 'green', speed: 65 })
+
+  expect(list.length).toEqual(2)
+
+  list[0].remove()
+
+  expect(list.length).toEqual(1)
+
+  expect(list[0].count.color).toBe('green')
 })
