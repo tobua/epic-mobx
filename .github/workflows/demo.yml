@@ -20,7 +20,7 @@ jobs:
           npm install
           npx papua build
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: demo
           folder: demo/dist
