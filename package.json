@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "license": "MIT",
   "author": "Matthias Giger",
+  "repository": "tobua/epic-mobx",
+  "homepage": "https://tobua.github.io/epic-mobx",
   "scripts": {
     "start": "padua watch",
     "build": "padua build",
