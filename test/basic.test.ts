@@ -191,3 +191,29 @@ test('Instantiation only takes place when there is data.', () => {
 
   expect(constructorMock.mock.calls.length).toBe(2)
 })
+
+test('Remove still works even if makeAutoObservable missing.', () => {
+  class NestedNotBound {
+    value: number
+
+    constructor(value: number) {
+      this.value = value
+    }
+  }
+
+  class StoreNotBound {
+    list = nestable([1, 2, 3], NestedNotBound)
+
+    constructor() {
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+  }
+
+  const Data = new StoreNotBound()
+
+  expect(Data.list.length).toEqual(3)
+
+  Data.list[1].remove()
+
+  expect(Data.list.length).toEqual(2)
+})

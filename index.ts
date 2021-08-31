@@ -1,4 +1,10 @@
-import { observable, IObservableArray, runInAction } from 'mobx'
+import {
+  observable,
+  IObservableArray,
+  runInAction,
+  makeObservable,
+  action,
+} from 'mobx'
 
 type Class = { new (...args: any[]): any }
 
@@ -14,6 +20,13 @@ export interface NestableItem {
 // Used to ensure remove bound to instance as autoBind won't work with transpilation.
 const createInstance = (Base: Class, values: any) => {
   const instance = new Base(values)
+
+  // When using makeAutoObservable remove will already be observable.
+  if (!instance.remove.isMobxAction) {
+    makeObservable(instance, {
+      remove: action.bound,
+    })
+  }
   return instance
 }
 
