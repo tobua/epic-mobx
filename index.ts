@@ -14,7 +14,6 @@ export interface NestableItem {
 // Used to ensure remove bound to instance as autoBind won't work with transpilation.
 const createInstance = (Base: Class, values: any) => {
   const instance = new Base(values)
-  instance.remove = instance.remove.bind(instance)
   return instance
 }
 
@@ -33,7 +32,8 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
 
   let observableList: IObservableArray<ItemClass>
   // Create a class instance so we can later extract it's type.
-  const inputInstance = new InputClass(null)
+  // Instead of new InputClass(null) to avoid constructor call.
+  const inputInstance = Object.create(InputClass.prototype)
 
   InputClass.prototype.remove = function remove() {
     const found = observableList.find((item) => item === this)
@@ -44,9 +44,9 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
     }
   }
 
-  const initialInstanes = initialValues.map((value) =>
-    createInstance(InputClass, value)
-  )
+  const initialInstanes = Array.isArray(initialValues)
+    ? initialValues.map((value) => createInstance(InputClass, value))
+    : []
   observableList = observable(initialInstanes)
 
   Object.defineProperty(observableList, 'extend', {

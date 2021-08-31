@@ -147,3 +147,47 @@ test('Works with object types.', () => {
 
   expect(list[0].count.color).toBe('green')
 })
+
+test('Instantiation only takes place when there is data.', () => {
+  const constructorMock = jest.fn()
+
+  class NestedClassMock {
+    constructor(value: object) {
+      constructorMock(value)
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+  }
+
+  class StoreClassMock {
+    list = nestable([], NestedClassMock)
+
+    constructor() {
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+  }
+
+  class StoreClassNullMock {
+    list = nestable(null, NestedClassMock)
+
+    constructor() {
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+  }
+
+  const StoreMock = new StoreClassMock()
+
+  expect(constructorMock.mock.calls.length).toBe(0)
+
+  StoreMock.list.extend({ hello: 'world' })
+
+  expect(constructorMock.mock.calls.length).toBe(1)
+  expect(constructorMock.mock.calls[0][0]).toEqual({ hello: 'world' })
+
+  const StoreNullMock = new StoreClassNullMock()
+
+  expect(constructorMock.mock.calls.length).toBe(1)
+
+  StoreNullMock.list.extend({ hello: 'world' })
+
+  expect(constructorMock.mock.calls.length).toBe(2)
+})

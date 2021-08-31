@@ -6,6 +6,7 @@ class Counter {
 
   constructor(value: number) {
     this.count = value
+    makeAutoObservable(this, {}, { autoBind: true })
   }
 }
 
