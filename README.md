@@ -93,3 +93,29 @@ const Item = observer(({ item }: { item: Item & NestableItem }) => (
 
 To ensure the added methods like `remove` are available in typescript you can add them
 with the exported `NestableItem` class.
+
+## Utility Method: placeAll
+
+Use this method to avoid assigning long lists of initial values onto an instance. Make sure to call it before `makeAutoObservable`.
+
+```ts
+import { placeAll } from 'epic-mobx'
+
+type ItemInput = { title: string; text: string; date: string }
+
+class Item {
+  constructor({ title, text, date }: ItemInput) {
+    this.title = title
+    this.text = text
+    this.date = date
+  }
+  // =>
+  constructor(data: ItemInput) {
+    placeAll(this, data)
+  }
+  // Also works with multiple arguments.
+  constructor(...args) {
+    placeAll(this, args)
+  }
+}
+```
