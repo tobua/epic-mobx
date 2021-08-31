@@ -94,6 +94,45 @@ const Item = observer(({ item }: { item: Item & NestableItem }) => (
 To ensure the added methods like `remove` are available in typescript you can add them
 with the exported `NestableItem` class.
 
+## Structuring Stores
+
+To keep in line with the idea of one class per file the following structure has proven useful.
+
+```
+my-app
+├── data
+│   ├── index.ts
+│   ├── project.ts
+│   └── user.ts
+├── markup
+|   └── Button.tsx
+└── index.tsx
+```
+
+Place all MobX Stores inside a folder we now call `data` and export a single root store with all the nested stores imported from different files accessible by importing the root store instance.
+
+```ts
+import { makeAutoObservable } from 'mobx'
+import { nestable } from 'epic-mobx'
+import { Project } from './project'
+import { User } from './user'
+
+class Store {
+  user = nestable([{ name: 'Jimmy' }], User)
+  project = nestable([], Project)
+
+  constructor() {
+    makeAutoObservable(this, {}, { autoBind: true })
+  }
+
+  randomProject() {
+    return this.project[Math.floor(Math.random() * this.project.length) + 1]
+  }
+}
+
+export const Data = new Store()
+```
+
 ## Utility Method: placeAll
 
 Use this method to avoid assigning long lists of initial values onto an instance. Make sure to call it before `makeAutoObservable`.
