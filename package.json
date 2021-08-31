@@ -1,7 +1,7 @@
 {
   "name": "epic-mobx",
   "description": "Makes it easy to work with lists of nested stores in MobX.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": "tobua/epic-mobx",
   "homepage": "https://tobua.github.io/epic-mobx",
   "license": "MIT",

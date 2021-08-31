@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/tobua/epic-mobx/compare/v0.1.0...v0.1.1) (2021-08-31)
+
+
+### Features
+
+* **place-all:** helper method to spread constructor properties ([16e92d6](https://github.com/tobua/epic-mobx/commit/16e92d6aacdf1a4d899a2a4bbd0913dec008d448))
+
+
+### Bug Fixes
+
+* **instance:** avoid unnecessary constructor call and validate inputs ([42d91e2](https://github.com/tobua/epic-mobx/commit/42d91e2002207d113e5e88d77268d52eae68a0b2))
+* **observable:** use MobX helpers to bind custom action when needed ([b6a3262](https://github.com/tobua/epic-mobx/commit/b6a3262264ae14e44ff0b5402bfb7b7a2d428264))
+* **react-native:** workaround to avoid metro warning in react-native ([4645f51](https://github.com/tobua/epic-mobx/commit/4645f5174217054e3d640b8a6d6691bef08c9fa7))
+
 ## 0.1.0 (2021-06-30)
 
 
