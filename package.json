@@ -16,7 +16,10 @@
   },
   "type": "module",
   "main": "dist/index.js",
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
   "sideEffects": false,
   "types": "dist/index.d.ts",
   "files": [
