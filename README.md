@@ -21,6 +21,7 @@ import { nestable } from 'epic-mobx'
 class Item {
   constructor(value: number) {
     this.count = value
+    makeAutoObservable(this, {}, { autoBind: true })
   }
 }
 
@@ -93,6 +94,19 @@ const Item = observer(({ item }: { item: Item & NestableItem }) => (
 
 To ensure the added methods like `remove` are available in typescript you can add them
 with the exported `NestableItem` class.
+
+### replaceAll
+
+Use this function instead of `observable.replace` to replace all items with new instances of the nestable class.
+
+```ts
+const myNestable = nestable([{ color: 'red', speed: 50 }], Item)
+
+nestable.replaceAll([
+  { color: 'blue', speed: 100 },
+  { color: 'green', speed: 75 },
+])
+```
 
 ## Structuring Stores
 

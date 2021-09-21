@@ -11,6 +11,7 @@ type Class = { new (...args: any[]): any }
 interface INestedObservableArray<InputValue, ItemClass>
   extends IObservableArray<ItemClass> {
   extend: (value: InputValue) => void
+  replaceAll: (values: InputValue[]) => ItemClass[]
 }
 
 export interface NestableItem {
@@ -27,6 +28,7 @@ const createInstance = (Base: Class, values: any) => {
       remove: action.bound,
     })
   }
+
   return instance
 }
 
@@ -65,6 +67,14 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
   Object.defineProperty(observableList, 'extend', {
     value: (value: ConstructorValue) => {
       observableList.push(createInstance(InputClass, value))
+    },
+    enumerable: true,
+  })
+
+  Object.defineProperty(observableList, 'replaceAll', {
+    value: (values: ConstructorValue[]) => {
+      const instances = values.map((value) => createInstance(InputClass, value))
+      return observableList.replace(instances)
     },
     enumerable: true,
   })

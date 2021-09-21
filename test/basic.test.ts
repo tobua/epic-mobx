@@ -217,3 +217,35 @@ test('Remove still works even if makeAutoObservable missing.', () => {
 
   expect(Data.list.length).toEqual(2)
 })
+
+test('Observable<Array>.replace will insert instances.', () => {
+  class NestedNotBound {
+    value: number
+
+    constructor(value: number) {
+      this.value = value
+    }
+  }
+
+  class StoreNotBound {
+    list = nestable([1, 2, 3], NestedNotBound)
+
+    constructor() {
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+  }
+
+  const Data = new StoreNotBound()
+
+  expect(Data.list.length).toBe(3)
+
+  Data.list.replaceAll([4, 5, 6, 7, 8, 9])
+
+  expect(Data.list.length).toBe(6)
+
+  expect(Data.list[3].value).toEqual(7)
+
+  Data.list[3].remove()
+
+  expect(Data.list.length).toBe(5)
+})
