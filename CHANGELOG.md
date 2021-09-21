@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/tobua/epic-mobx/compare/v0.1.1...v0.1.2) (2021-09-21)
+
+
+### Features
+
+* **replace:** replaceAll as replacement for Observable<Array>.replace ([e5c794a](https://github.com/tobua/epic-mobx/commit/e5c794aa8e376d144f644bfc51ac91bd8815f30f))
+
 ### [0.1.1](https://github.com/tobua/epic-mobx/compare/v0.1.0...v0.1.1) (2021-08-31)
 
 
