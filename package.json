@@ -1,26 +1,26 @@
 {
   "name": "epic-mobx",
   "description": "Makes it easy to work with lists of nested stores in MobX.",
-  "version": "0.1.2",
+  "version": "0.0.0-development",
   "repository": "tobua/epic-mobx",
   "homepage": "https://tobua.github.io/epic-mobx",
   "license": "MIT",
   "author": "Matthias Giger",
   "scripts": {
-    "start": "padua watch",
     "build": "padua build",
+    "start": "padua watch",
     "test": "padua test"
   },
   "peerDependencies": {
-    "mobx": "^6.3.3"
+    "mobx": "^6.5.0"
   },
   "type": "module",
+  "sideEffects": false,
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
   "types": "dist/index.d.ts",
   "files": [
     "dist"
@@ -32,8 +32,8 @@
     "react"
   ],
   "devDependencies": {
-    "mobx": "^6.3.3",
-    "padua": "^0.3.12"
+    "mobx": "^6.5.0",
+    "padua": "^0.5.4"
   },
   "prettier": "padua/configuration/.prettierrc.json",
   "eslintConfig": {

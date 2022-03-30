@@ -35,9 +35,7 @@ test('Can use placeAll with multiple arguments.', () => {
     content: string
     date: string
 
-    constructor(
-      ...data: [{ title: string; content: string }, { date: string }]
-    ) {
+    constructor(...data: [{ title: string; content: string }, { date: string }]) {
       placeAll(this, data)
       makeAutoObservable(this, {}, { autoBind: true })
     }

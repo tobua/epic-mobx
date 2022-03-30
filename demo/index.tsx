@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Exmpl, Button, Input } from 'exmpl'
 import { makeAutoObservable } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -70,9 +70,8 @@ const Basic = observer(() => {
   )
 })
 
-render(
+createRoot(document.body).render(
   <Exmpl title="epic-mobx Demo" npm="epic-mobx" github="tobua/epic-mobx">
     <Basic />
-  </Exmpl>,
-  document.body
+  </Exmpl>
 )

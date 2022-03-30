@@ -70,9 +70,7 @@ test('Warning if second argument is not a class.', () => {
   createStore([1, 2], {})
 
   expect(consoleWarnMock.mock.calls.length).toEqual(1)
-  expect(consoleWarnMock.mock.calls[0][0]).toContain(
-    'Type needs to be a class.'
-  )
+  expect(consoleWarnMock.mock.calls[0][0]).toContain('Type needs to be a class.')
 })
 
 test('List is added to Store and can be accessed.', () => {
