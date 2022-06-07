@@ -172,3 +172,33 @@ class Item {
   }
 }
 ```
+
+## Experimental: Usage with Objects
+
+```js
+import { makeAutoObservable } from 'mobx'
+import { nestableObject } from 'epic-mobx'
+
+const createItem = (count: number) => ({
+  count,
+})
+
+const createContainer = () => ({
+  // Use nestableObject instead of nestable when not using classes.
+  list: nestableObject([1, 2], createItem),
+})
+
+const store = makeAutoObservable(createContainer(), undefined, { autoBind: true })
+
+// Initial values automatically initialized with NestedClass
+store.list[0].count === 1
+store.list[1].count === 2
+
+// Instead of store.list.push(new NestedClass(3))
+store.list.extend(3)
+
+store.list[2].count === 3
+
+// Remove individual elements without a reference to the containing store.
+store.list[1].remove()
+```

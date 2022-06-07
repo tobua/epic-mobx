@@ -113,6 +113,9 @@ test('Works with empty initial values and inline type.', () => {
   list.extend(1)
 
   expect(list.length).toEqual(1)
+
+  // @ts-expect-error
+  list.extend('1')
 })
 
 test('Works with empty initial values and generic types.', () => {

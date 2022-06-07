@@ -1,15 +1,10 @@
-import {
-  observable,
-  IObservableArray,
-  runInAction,
-  makeObservable,
-  action,
-} from 'mobx'
+import { observable, IObservableArray, runInAction, makeObservable, action } from 'mobx'
+
+export { nestableObject } from './object'
 
 type Class = { new (...args: any[]): any }
 
-interface INestedObservableArray<InputValue, ItemClass>
-  extends IObservableArray<ItemClass> {
+export interface INestedObservableArray<InputValue, ItemClass> extends IObservableArray<ItemClass> {
   extend: (value: InputValue) => void
   replaceAll: (values: InputValue[]) => ItemClass[]
 }
@@ -36,10 +31,7 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
   initialValues: ConstructorValue[],
   InputClass: ItemClass
 ) => {
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    typeof InputClass !== 'function'
-  ) {
+  if (process.env.NODE_ENV !== 'production' && typeof InputClass !== 'function') {
     // eslint-disable-next-line no-console
     console.warn('epic-mobx: Type needs to be a class.')
     return null
