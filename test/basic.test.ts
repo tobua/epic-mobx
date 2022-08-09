@@ -1,5 +1,5 @@
 import { makeAutoObservable, autorun } from 'mobx'
-import { nestable } from '../index'
+import { nestable, INestedObservableArray } from '../index'
 
 class NestedClass {
   count = 1
@@ -16,7 +16,7 @@ class NestedClass {
 
 class StoreClass {
   count = 0
-  list = null
+  list: INestedObservableArray<unknown, any> | null = null
 
   constructor(value: any, type: any) {
     this.list = nestable(value, type)
@@ -67,7 +67,7 @@ test('Basic store works and export is defined.', () => {
 test('Warning if second argument is not a class.', () => {
   expect(consoleWarnMock.mock.calls.length).toEqual(0)
 
-  createStore([1, 2], {})
+  expect(() => createStore([1, 2], {})).toThrow()
 
   expect(consoleWarnMock.mock.calls.length).toEqual(1)
   expect(consoleWarnMock.mock.calls[0][0]).toContain('Type needs to be a class.')
@@ -160,7 +160,7 @@ test('Instantiation only takes place when there is data.', () => {
   }
 
   class StoreClassMock {
-    list = nestable([], NestedClassMock)
+    list = nestable<object, typeof NestedClassMock>([], NestedClassMock)
 
     constructor() {
       makeAutoObservable(this, {}, { autoBind: true })
@@ -168,7 +168,7 @@ test('Instantiation only takes place when there is data.', () => {
   }
 
   class StoreClassNullMock {
-    list = nestable(null, NestedClassMock)
+    list = nestable<object, typeof NestedClassMock>(null, NestedClassMock)
 
     constructor() {
       makeAutoObservable(this, {}, { autoBind: true })
@@ -219,7 +219,7 @@ test('Remove still works even if makeAutoObservable missing.', () => {
   expect(Data.list.length).toEqual(2)
 })
 
-test('Observable<Array>.replace will insert instances.', () => {
+test('Observable<Array>.replaceAll will insert instances.', () => {
   class NestedNotBound {
     value: number
 
@@ -240,9 +240,13 @@ test('Observable<Array>.replace will insert instances.', () => {
 
   expect(Data.list.length).toBe(3)
 
-  Data.list.replaceAll([4, 5, 6, 7, 8, 9])
+  const result = Data.list.replaceAll([4, 5, 6, 7, 8, 9])
 
   expect(Data.list.length).toBe(6)
+
+  // Default MobX replace returns previous elements (which isn't very useful).
+  expect(result.length).toBe(3)
+  expect(result[1].value).toBe(2)
 
   expect(Data.list[3].value).toEqual(7)
 

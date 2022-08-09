@@ -26,10 +26,6 @@ class StoreClass {
     makeAutoObservable(this, {}, { autoBind: true })
   }
 
-  add(initialCount: number) {
-    this.list.extend(initialCount)
-  }
-
   increment() {
     this.count += 2
   }
@@ -60,7 +56,7 @@ const Basic = observer(() => {
       <Input placeholder="Initial count" value={addValue} onValue={setAdd} />
       <Button
         onClick={() => {
-          Store.add(addValue)
+          Store.list.extend(addValue)
           setAdd(Store.list.length + 1)
         }}
       >

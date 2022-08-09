@@ -26,7 +26,7 @@ class NestedClass {
 
 class StoreClass {
   count = 0
-  list = null
+  list
 
   constructor(value: any, type: any) {
     this.list = nestable(value, type)

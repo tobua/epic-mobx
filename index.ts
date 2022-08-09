@@ -1,17 +1,10 @@
 import { observable, IObservableArray, runInAction, makeObservable, action } from 'mobx'
+import { INestedObservableArray, NestableItem } from './types'
 
 export { nestableObject } from './object'
+export { INestedObservableArray, NestableItem }
 
 type Class = { new (...args: any[]): any }
-
-export interface INestedObservableArray<InputValue, ItemClass> extends IObservableArray<ItemClass> {
-  extend: (value: InputValue) => void
-  replaceAll: (values: InputValue[]) => ItemClass[]
-}
-
-export interface NestableItem {
-  remove: () => void
-}
 
 // Used to ensure remove bound to instance as autoBind won't work with transpilation.
 const createInstance = (Base: Class, values: any) => {
@@ -28,13 +21,12 @@ const createInstance = (Base: Class, values: any) => {
 }
 
 export const nestable = <ConstructorValue, ItemClass extends Class>(
-  initialValues: ConstructorValue[],
+  initialValues: ConstructorValue[] | null,
   InputClass: ItemClass
 ) => {
   if (process.env.NODE_ENV !== 'production' && typeof InputClass !== 'function') {
     // eslint-disable-next-line no-console
     console.warn('epic-mobx: Type needs to be a class.')
-    return null
   }
 
   let observableList: IObservableArray<ItemClass>
@@ -58,7 +50,9 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
 
   Object.defineProperty(observableList, 'extend', {
     value: (value: ConstructorValue) => {
-      observableList.push(createInstance(InputClass, value))
+      runInAction(() => {
+        observableList.push(createInstance(InputClass, value))
+      })
     },
     enumerable: true,
   })
@@ -66,7 +60,11 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
   Object.defineProperty(observableList, 'replaceAll', {
     value: (values: ConstructorValue[]) => {
       const instances = values.map((value) => createInstance(InputClass, value))
-      return observableList.replace(instances)
+      let result
+      runInAction(() => {
+        result = observableList.replace(instances)
+      })
+      return result
     },
     enumerable: true,
   })

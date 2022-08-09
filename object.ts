@@ -1,5 +1,5 @@
 import { observable, IObservableArray, runInAction } from 'mobx'
-import { INestedObservableArray, NestableItem } from './index'
+import { INestedObservableArray, NestableItem } from './types'
 
 // Adds remove to instances.
 const enhanceFunctionInstance = (instance: any, list: any) => {
@@ -18,13 +18,12 @@ const enhanceFunctionInstance = (instance: any, list: any) => {
 }
 
 export const nestableObject = <ConstructorValue, ItemClass extends (...args: any) => any>(
-  initialValues: ConstructorValue[],
+  initialValues: ConstructorValue[] | null,
   inputFunction: ItemClass
 ) => {
   if (process.env.NODE_ENV !== 'production' && typeof inputFunction !== 'function') {
     // eslint-disable-next-line no-console
     console.warn('epic-mobx: Type needs to be a function.')
-    return null
   }
 
   const initialInstanes = Array.isArray(initialValues)
@@ -36,7 +35,9 @@ export const nestableObject = <ConstructorValue, ItemClass extends (...args: any
 
   Object.defineProperty(observableList, 'extend', {
     value: (value: ConstructorValue) => {
-      observableList.push(inputFunction(value))
+      runInAction(() => {
+        observableList.push(inputFunction(value))
+      })
     },
     enumerable: true,
   })
@@ -44,7 +45,11 @@ export const nestableObject = <ConstructorValue, ItemClass extends (...args: any
   Object.defineProperty(observableList, 'replaceAll', {
     value: (values: ConstructorValue[]) => {
       const instances = values.map((value) => inputFunction(value))
-      return observableList.replace(instances)
+      let result
+      runInAction(() => {
+        result = observableList.replace(instances)
+      })
+      return result
     },
     enumerable: true,
   })
