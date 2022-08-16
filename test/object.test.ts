@@ -26,11 +26,8 @@ let Store
 let countMock
 let dispose
 
-const createStore = <Type extends (...args: any[]) => object>(
-  definition: (...args: any[]) => ReturnType<Type>,
-  value: any
-) => {
-  Store = makeAutoObservable(definition(value), undefined, { autoBind: true }) as ReturnType<Type>
+const createStore = <Type extends Object>(definition: (...args: any[]) => Type, value: any) => {
+  Store = makeAutoObservable(definition(value), undefined, { autoBind: true })
 
   countMock = jest.fn(() => {
     noop(Store.count)
@@ -38,7 +35,7 @@ const createStore = <Type extends (...args: any[]) => object>(
 
   dispose = autorun(countMock)
 
-  return Store
+  return Store as Type
 }
 
 afterEach(() => dispose())
@@ -78,7 +75,6 @@ test('Nested store can be added with extend.', () => {
 test('Nested stores can be removed.', () => {
   const instance = createStore(store, [1, 2])
 
-  // TODO instance is any
   expect(instance.list.length).toEqual(2)
 
   const secondNestedStore = instance.list[1]

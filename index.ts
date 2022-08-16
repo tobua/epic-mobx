@@ -30,9 +30,6 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
   }
 
   let observableList: IObservableArray<ItemClass>
-  // Create a class instance so we can later extract it's type.
-  // Instead of new InputClass(null) to avoid constructor call.
-  const inputInstance = Object.create(InputClass.prototype)
 
   InputClass.prototype.remove = function remove() {
     const found = observableList.find((item) => item === this)
@@ -71,7 +68,7 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
 
   return observableList as INestedObservableArray<
     ConstructorValue,
-    typeof inputInstance & NestableItem
+    InstanceType<ItemClass> & NestableItem
   >
 }
 

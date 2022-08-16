@@ -1,6 +1,15 @@
 import { makeAutoObservable, autorun } from 'mobx'
 import { nestable, INestedObservableArray } from '../index'
 
+class GenericNestedClass<Count> {
+  count: Count
+
+  constructor(value: Count) {
+    this.count = value
+    makeAutoObservable(this, {}, { autoBind: true })
+  }
+}
+
 class NestedClass {
   count = 1
 
@@ -134,7 +143,7 @@ test('Works with object types.', () => {
     speed: number
   }
 
-  const list = nestable([{ color: 'blue', speed: 55 }] as Car[], NestedClass)
+  const list = nestable([{ color: 'blue', speed: 55 }] as Car[], GenericNestedClass<Car>)
 
   expect(list.length).toEqual(1)
 
@@ -253,4 +262,21 @@ test('Observable<Array>.replaceAll will insert instances.', () => {
   Data.list[3].remove()
 
   expect(Data.list.length).toBe(5)
+})
+
+test('Types for items in list are inferred properly.', () => {
+  const test = nestable<number, typeof NestedClass>([1, 2], NestedClass)
+
+  // @ts-expect-error
+  test.extend('hello')
+  // @ts-expect-error
+  test.extend({})
+
+  test.extend(7)
+
+  const firstItem = test[0]
+
+  test.extend(firstItem.count)
+  // @ts-expect-error
+  test.extend(firstItem.hello)
 })
