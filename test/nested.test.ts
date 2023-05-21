@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx'
-import { nestable } from '../index'
+import { INestedObservableArray, nestable, NestableItem } from '../index'
 
 class Counter {
   count = 1
@@ -12,9 +12,10 @@ class Counter {
 
 class NestedClass {
   count = 1
-  anotherList = nestable([1, 2], Counter)
+  anotherList: INestedObservableArray<number, Counter & NestableItem>
 
   constructor(value: number) {
+    this.anotherList = nestable([1, 2], Counter)
     this.count = value
     makeAutoObservable(this, {}, { autoBind: true })
   }
@@ -26,10 +27,12 @@ class NestedClass {
 
 class StoreClass {
   count = 0
-  list
+  list: INestedObservableArray<any, NestedClass & NestableItem>
+  secondList: INestedObservableArray<any, NestedClass & NestableItem>
 
   constructor(value: any, type: any) {
     this.list = nestable(value, type)
+    this.secondList = nestable(value, type)
     makeAutoObservable(this, {}, { autoBind: true })
   }
 
@@ -55,4 +58,35 @@ test('Nestable can be nested deeply.', () => {
   Store.list[0].anotherList.extend(3)
 
   expect(Store.list[0].anotherList.length).toBe(2)
+})
+
+test('Item methods still work even when nestable is nested and remove applied to new elements.', () => {
+  const Store = new StoreClass([1, 2], NestedClass)
+
+  // Removing of extended items works when not nested.
+  expect(Store.list.length).toBe(2)
+  Store.list.extend([6, 7, 8])
+  Store.list.extend([9])
+  expect(Store.list.length).toBe(4)
+  Store.list[2].remove()
+  expect(Store.list.length).toBe(3)
+  expect(Store.list[0].anotherList.length).toBe(2)
+
+  // Multiple nestables have been problematic.
+  expect(Store.secondList.length).toBe(2)
+  Store.secondList.extend([6, 7, 8])
+  Store.secondList.extend([9])
+  expect(Store.secondList.length).toBe(4)
+  Store.secondList[2].remove()
+  expect(Store.secondList.length).toBe(3)
+  expect(Store.secondList[0].anotherList.length).toBe(2)
+
+  // Removing of extended and nested item.
+  Store.list[0].anotherList.extend(3)
+  // @ts-expect-error
+  Store.list[0].anotherList.extend('4')
+  expect(Store.list[0].anotherList.length).toBe(4)
+  // Removing item not previously in list.
+  Store.list[0].anotherList[2].remove()
+  expect(Store.list[0].anotherList.length).toBe(3)
 })

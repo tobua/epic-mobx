@@ -7,8 +7,18 @@ export { INestedObservableArray, NestableItem }
 type Class = { new (...args: any[]): any }
 
 // Used to ensure remove bound to instance as autoBind won't work with transpilation.
-const createInstance = (Base: Class, values: any) => {
+const createInstance = <Item extends Class>(
+  Base: Item,
+  values: any,
+  list: IObservableArray<Item>
+) => {
   const instance = new Base(values)
+
+  Object.defineProperty(instance, '__root', {
+    value: list,
+    writable: false,
+    enumerable: false,
+  })
 
   // When using makeAutoObservable remove will already be observable.
   if (!instance.remove.isMobxAction) {
@@ -17,38 +27,40 @@ const createInstance = (Base: Class, values: any) => {
     })
   }
 
-  return instance
+  return instance as Item
 }
 
-export const nestable = <ConstructorValue, ItemClass extends Class>(
+export function nestable<ConstructorValue, ItemClass extends Class>(
   initialValues: ConstructorValue[] | null,
   InputClass: ItemClass
-) => {
+) {
   if (process.env.NODE_ENV !== 'production' && typeof InputClass !== 'function') {
     // eslint-disable-next-line no-console
     console.warn('epic-mobx: Type needs to be a class.')
   }
 
-  let observableList: IObservableArray<ItemClass>
+  const observableList = observable<ItemClass>([])
 
-  InputClass.prototype.remove = function remove() {
-    const found = observableList.find((item) => item === this)
-    if (found) {
-      runInAction(() => {
-        observableList.remove(found)
-      })
-    }
+  // this will automatically be bound to the item from where remove is called.
+  InputClass.prototype.remove = function remove(this: NestableItem) {
+    // eslint-disable-next-line no-underscore-dangle
+    const list = this.__root
+    runInAction(() => {
+      list.remove(this)
+    })
   }
 
-  const initialInstanes = Array.isArray(initialValues)
-    ? initialValues.map((value) => createInstance(InputClass, value))
-    : []
-  observableList = observable(initialInstanes)
+  // Add initial instances (which require a reference to the list).
+  if (Array.isArray(initialValues)) {
+    observableList.push(
+      ...initialValues.map((value) => createInstance<ItemClass>(InputClass, value, observableList))
+    )
+  }
 
   Object.defineProperty(observableList, 'extend', {
     value: (value: ConstructorValue) => {
       runInAction(() => {
-        observableList.push(createInstance(InputClass, value))
+        observableList.push(createInstance(InputClass, value, observableList))
       })
     },
     enumerable: true,
@@ -56,7 +68,7 @@ export const nestable = <ConstructorValue, ItemClass extends Class>(
 
   Object.defineProperty(observableList, 'replaceAll', {
     value: (values: ConstructorValue[]) => {
-      const instances = values.map((value) => createInstance(InputClass, value))
+      const instances = values.map((value) => createInstance(InputClass, value, observableList))
       let result
       runInAction(() => {
         result = observableList.replace(instances)

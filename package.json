@@ -32,24 +32,19 @@
     "react"
   ],
   "devDependencies": {
-    "mobx": "^6.6.1",
-    "padua": "^0.6.1"
+    "mobx": "^6.9.0",
+    "padua": "^1.2.4"
   },
   "prettier": "padua/configuration/.prettierrc.json",
   "eslintConfig": {
     "extends": "./node_modules/padua/configuration/eslint.cjs"
   },
   "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "./tsconfig.json"
-      }
-    },
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
   },
   "engines": {
-    "node": ">= 14"
+    "node": ">= 16"
   }
 }

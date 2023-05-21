@@ -7,4 +7,5 @@ export interface INestedObservableArray<InputValue, ItemClass> extends IObservab
 
 export interface NestableItem {
   remove: () => void
+  __root: INestedObservableArray<any, any>
 }
