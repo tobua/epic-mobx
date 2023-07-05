@@ -36,7 +36,7 @@ export const nestableObject = <ConstructorValue, ItemClass extends (...args: any
   Object.defineProperty(observableList, 'extend', {
     value: (value: ConstructorValue) => {
       runInAction(() => {
-        observableList.push(inputFunction(value))
+        observableList.push(enhanceFunctionInstance(inputFunction(value), observableList))
       })
     },
     enumerable: true,

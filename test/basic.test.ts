@@ -1,10 +1,11 @@
 import { makeAutoObservable, autorun } from 'mobx'
+import { test, expect, afterEach, vi } from 'vitest'
 import { nestable, INestedObservableArray } from '../index'
 
-class GenericNestedClass<Count> {
-  count: Count
+class GenericNestedClass<T> {
+  count: T
 
-  constructor(value: Count) {
+  constructor(value: T) {
     this.count = value
     makeAutoObservable(this, {}, { autoBind: true })
   }
@@ -37,7 +38,7 @@ class StoreClass {
   }
 }
 
-const consoleWarnMock = jest.fn()
+const consoleWarnMock = vi.fn()
 console.warn = consoleWarnMock
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -50,14 +51,14 @@ let dispose
 const createStore = (value: any, type: any) => {
   Store = new StoreClass(value, type)
 
-  countMock = jest.fn(() => {
+  countMock = vi.fn(() => {
     noop(Store.count)
   })
 
   dispose = autorun(countMock)
 }
 
-afterEach(() => dispose())
+afterEach(() => dispose && dispose())
 
 test('Basic store works and export is defined.', () => {
   createStore([1, 2], NestedClass)
@@ -159,7 +160,7 @@ test('Works with object types.', () => {
 })
 
 test('Instantiation only takes place when there is data.', () => {
-  const constructorMock = jest.fn()
+  const constructorMock = vi.fn()
 
   class NestedClassMock {
     constructor(value: object) {
@@ -265,18 +266,128 @@ test('Observable<Array>.replaceAll will insert instances.', () => {
 })
 
 test('Types for items in list are inferred properly.', () => {
-  const test = nestable<number, typeof NestedClass>([1, 2], NestedClass)
+  const list = nestable<number, typeof NestedClass>([1, 2], NestedClass)
 
   // @ts-expect-error
-  test.extend('hello')
+  list.extend('hello')
   // @ts-expect-error
-  test.extend({})
+  list.extend({})
 
-  test.extend(7)
+  list.extend(7)
 
-  const firstItem = test[0]
+  const firstItem = list[0]
 
-  test.extend(firstItem.count)
+  list.extend(firstItem.count)
   // @ts-expect-error
-  test.extend(firstItem.hello)
+  list.extend(firstItem.hello)
+})
+
+test('Update method on item can be used to update arbitrary values.', () => {
+  type CarInput = { id: string; color: string; speed: number; active?: boolean }
+  class CarClass {
+    id: string
+    color: string
+    speed: number
+    active?: boolean
+
+    constructor(value: CarInput) {
+      this.id = value.id
+      this.color = value.color
+      this.speed = value.speed
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+  }
+
+  const list = nestable<CarInput, typeof CarClass>(
+    [
+      { id: '1', color: 'red', speed: 50 },
+      { id: '2', color: 'green', speed: 25 },
+    ],
+    CarClass
+  )
+
+  expect(list.length).toBe(2)
+  expect(list[1].color).toBe('green')
+
+  list[1].update({ color: 'blue' })
+
+  expect(list[1].color).toBe('blue')
+
+  list[1].update({ color: 'green', speed: 75, active: true })
+
+  expect(list[1].color).toBe('green')
+  expect(list[1].speed).toBe(75)
+  expect(list[1].active).toBe(true)
+
+  list[1].update({ active: undefined })
+
+  expect(list[1].speed).toBe(75)
+  expect(list[1].active).toBe(undefined)
+})
+
+test('Update method can be overridden on item.', () => {
+  type CarInput = { id: string; color: string; speed: number; active?: boolean }
+  class CarClass {
+    id: string
+    color: string
+    speed: number
+    active?: boolean
+
+    constructor(value: CarInput) {
+      this.id = value.id
+      this.color = value.color
+      this.speed = value.speed
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+
+    update(value: CarInput) {
+      this.color = value.color ?? this.color
+    }
+  }
+
+  const list = nestable<CarInput, typeof CarClass>([{ id: '1', color: 'red', speed: 50 }], CarClass)
+
+  expect(list.length).toBe(1)
+  expect(list[0].color).toBe('red')
+
+  list[0].update({ color: 'blue' })
+
+  expect(list[0].color).toBe('blue')
+
+  list[0].update({ speed: 75 })
+
+  expect(list[0].color).toBe('blue')
+  expect(list[0].speed).toBe(50)
+})
+
+test('byId method on list can be used to quickly find an item.', () => {
+  type CarInput = { id: string; color: string; speed: number; active?: boolean }
+  class CarClass {
+    id: string
+    color: string
+    speed: number
+    active?: boolean
+
+    constructor(value: CarInput) {
+      this.id = value.id
+      this.color = value.color
+      this.speed = value.speed
+      makeAutoObservable(this, {}, { autoBind: true })
+    }
+  }
+
+  const list = nestable<CarInput, typeof CarClass>(
+    [
+      { id: '1', color: 'red', speed: 50 },
+      { id: '2', color: 'green', speed: 25 },
+    ],
+    CarClass
+  )
+
+  expect(list.byId('1').color).toBe('red')
+  expect(list.byId('2').color).toBe('green')
+
+  list.byId('2').update({ id: '3', color: 'green' })
+
+  expect(list.byId('3').color).toBe('green')
 })

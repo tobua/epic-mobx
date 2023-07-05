@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx'
+import { test, expect } from 'vitest'
 import { INestedObservableArray, nestable, NestableItem } from '../index'
 
 class Counter {

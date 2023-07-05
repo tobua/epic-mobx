@@ -1,8 +1,10 @@
 import { observable, IObservableArray, runInAction, makeObservable, action } from 'mobx'
 import { INestedObservableArray, NestableItem } from './types'
+import { placeAll } from './helper'
 
 export { nestableObject } from './object'
 export { INestedObservableArray, NestableItem }
+export { placeAll }
 
 type Class = { new (...args: any[]): any }
 
@@ -50,6 +52,14 @@ export function nestable<ConstructorValue, ItemClass extends Class>(
     })
   }
 
+  if (typeof InputClass.prototype.update === 'undefined') {
+    InputClass.prototype.update = function update(this: NestableItem, data: any) {
+      runInAction(() => {
+        placeAll(this, data)
+      })
+    }
+  }
+
   // Add initial instances (which require a reference to the list).
   if (Array.isArray(initialValues)) {
     observableList.push(
@@ -63,6 +73,11 @@ export function nestable<ConstructorValue, ItemClass extends Class>(
         observableList.push(createInstance(InputClass, value, observableList))
       })
     },
+    enumerable: true,
+  })
+
+  Object.defineProperty(observableList, 'byId', {
+    value: (id: any) => observableList.find((item: any) => item.id === id),
     enumerable: true,
   })
 
@@ -82,20 +97,4 @@ export function nestable<ConstructorValue, ItemClass extends Class>(
     ConstructorValue,
     InstanceType<ItemClass> & NestableItem
   >
-}
-
-export const placeAll = (instance: object, ...values: any[]) => {
-  values.forEach((properties) => {
-    if (Array.isArray(properties)) {
-      properties.forEach((innerProperties) => {
-        Object.keys(innerProperties).forEach((key) => {
-          instance[key] = innerProperties[key]
-        })
-      })
-    } else {
-      Object.keys(properties).forEach((key) => {
-        instance[key] = properties[key]
-      })
-    }
-  })
 }

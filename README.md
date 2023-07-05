@@ -66,18 +66,38 @@ passed in the second argument.
 ### Extend
 
 ```ts
-const myNestable = nestable([{ color: 'red', speed: 50 }], Item)
+const myList = nestable([{ color: 'red', speed: 50 }], Item)
 
-nestable.extend({ color: 'blue', speed: 100 })
-nestable.extend({ color: 'green', speed: 75 })
+myList.extend({ color: 'blue', speed: 100 })
+myList.extend({ color: 'green', speed: 75 })
 ```
 
 This plugin will create a new instance of the store defined at the start.
 
+### Find
+
+```ts
+const myList = nestable([{ id: '1', color: 'red', speed: 50 }, { id: '2', color: 'green', speed: 25 }], Item)
+
+myList.byId('2').remove()
+```
+
+`byId` will find the first element in the list with a matching id and return it.
+
+### Update
+
+```ts
+const myList = nestable([{ id: '1', color: 'red', speed: 50 }, { id: '2', color: 'green', speed: 25 }], Item)
+
+myList[1].update({ color: 'blue', speed: 75, newProperty: false })
+```
+
+Using the [`placeAll()`]() method this will update any passed properties on the list item. When an `update` method is already present on the item it will have precedence.
+
 ### Remove
 
 ```ts
-myNestable[1].remove() // => Item({ color: 'blue', speed: 100 }) removed from the myNestable list
+myList[1].remove() // => Item({ color: 'blue', speed: 100 }) removed from the myList list
 ```
 
 Removing items this way avoids the need for a refrence to the observable. This

@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx'
+import { test, expect } from 'vitest'
 import { placeAll } from '../index'
 
 test('Can use placeAll helper to distribute properties.', () => {

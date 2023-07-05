@@ -1,4 +1,5 @@
 import { makeAutoObservable, autorun } from 'mobx'
+import { test, expect, afterEach, vi } from 'vitest'
 import { nestable, nestableObject } from '../index'
 
 const nested = (count = 1) => ({
@@ -16,7 +17,7 @@ const store = (value: any) => ({
   },
 })
 
-const consoleWarnMock = jest.fn()
+const consoleWarnMock = vi.fn()
 console.warn = consoleWarnMock
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,7 +30,7 @@ let dispose
 const createStore = <Type extends Object>(definition: (...args: any[]) => Type, value: any) => {
   Store = makeAutoObservable(definition(value), undefined, { autoBind: true })
 
-  countMock = jest.fn(() => {
+  countMock = vi.fn(() => {
     noop(Store.count)
   })
 
@@ -38,7 +39,7 @@ const createStore = <Type extends Object>(definition: (...args: any[]) => Type, 
   return Store as Type
 }
 
-afterEach(() => dispose())
+afterEach(() => dispose && dispose())
 
 test('Basic store works and export is defined.', () => {
   const instance = createStore(store, [1, 2])
@@ -163,4 +164,67 @@ test('Documentation example works.', () => {
   instance.list[1].remove()
 
   expect(instance.list.length).toBe(2)
+})
+
+test('Item methods still work even when remove is applied to new elements and nested elements.', () => {
+  const simpleCreateItem = (count: number) => ({
+    count,
+  })
+
+  const createItem = (count: number) => ({
+    count,
+    nestedList: nestableObject([3, 4], simpleCreateItem),
+    anotherNestedList: nestableObject([5, 6], simpleCreateItem),
+  })
+
+  const list = nestableObject([1, 2], createItem)
+
+  expect(list.length).toBe(2)
+  list[1].remove()
+  expect(list.length).toBe(1)
+  list.extend(5)
+  expect(list.length).toBe(2)
+  expect(list[1].count).toBe(5)
+  list[1].remove()
+  expect(list.length).toBe(1)
+  list.extend(6)
+  list.extend(7)
+  expect(list.length).toBe(3)
+  list[2].remove()
+  list[1].remove()
+  expect(list.length).toBe(1)
+
+  list.extend(8)
+
+  expect(list.length).toBe(2)
+  expect(list[0].nestedList.length).toBe(2)
+  expect(list[0].nestedList[1].count).toBe(4)
+  expect(list[1].anotherNestedList.length).toBe(2)
+
+  list[0].nestedList[1].remove()
+
+  expect(list[0].nestedList.length).toBe(1)
+  expect(list[1].anotherNestedList.length).toBe(2)
+
+  list[0].nestedList.extend(7)
+  list[1].anotherNestedList.extend(8)
+  list[1].anotherNestedList.extend(9)
+
+  expect(list[0].nestedList.length).toBe(2)
+  expect(list[1].anotherNestedList.length).toBe(4)
+
+  list[0].nestedList[1].remove()
+  list[1].anotherNestedList[3].remove()
+
+  expect(list[0].nestedList.length).toBe(1)
+  expect(list[1].anotherNestedList.length).toBe(3)
+
+  list.extend(9)
+  list[2].anotherNestedList.extend(10)
+
+  expect(list[2].anotherNestedList[2].count).toBe(10)
+
+  list[2].anotherNestedList[2].remove()
+
+  expect(list[2].anotherNestedList.length).toBe(2)
 })

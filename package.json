@@ -9,7 +9,7 @@
   "scripts": {
     "build": "padua build",
     "start": "padua watch",
-    "test": "padua test"
+    "test": "vitest run"
   },
   "peerDependencies": {
     "mobx": "^6.6.1"
@@ -18,7 +18,10 @@
   "sideEffects": false,
   "main": "dist/index.js",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./package.json": "./package.json"
   },
   "types": "dist/index.d.ts",
@@ -33,16 +36,15 @@
   ],
   "devDependencies": {
     "mobx": "^6.9.0",
-    "padua": "^1.2.4"
+    "padua": "^2.0.0",
+    "vitest": "^0.32.4"
   },
   "prettier": "padua/configuration/.prettierrc.json",
   "eslintConfig": {
     "extends": "./node_modules/padua/configuration/eslint.cjs"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    }
+  "publishConfig": {
+    "provenance": true
   },
   "engines": {
     "node": ">= 16"
