@@ -1,5 +1,5 @@
-import { makeAutoObservable, autorun } from 'mobx'
-import { test, expect, afterEach, vi } from 'vitest'
+import { makeAutoObservable, autorun, IReactionDisposer } from 'mobx'
+import { test, expect, afterEach, vi, Mock } from 'vitest'
 import { nestable, nestableObject } from '../index'
 
 const nested = (count = 1) => ({
@@ -18,25 +18,25 @@ const store = (value: any) => ({
 })
 
 const consoleWarnMock = vi.fn()
+// eslint-disable-next-line no-console
 console.warn = consoleWarnMock
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const noop = (...values: any[]) => {}
+const noop = (() => {}) as (...values: any[]) => void
 
-let Store
-let countMock
-let dispose
+let countMock: Mock
+let dispose: IReactionDisposer
 
-const createStore = <Type extends Object>(definition: (...args: any[]) => Type, value: any) => {
-  Store = makeAutoObservable(definition(value), undefined, { autoBind: true })
+const createStore = <T extends Object>(definition: (...args: any[]) => T, value: any) => {
+  const Store = makeAutoObservable(definition(value), undefined, { autoBind: true })
 
   countMock = vi.fn(() => {
+    // @ts-ignore
     noop(Store.count)
   })
 
   dispose = autorun(countMock)
 
-  return Store as Type
+  return Store as T
 }
 
 afterEach(() => dispose && dispose())

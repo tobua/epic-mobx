@@ -4,12 +4,12 @@
     "icon": "../logo.png"
   },
   "dependencies": {
-    "@types/react": "^18.2.6",
-    "@types/react-dom": "^18.2.4",
+    "@types/react": "^18.2.41",
+    "@types/react-dom": "^18.2.17",
     "exmpl": "^3.0.0",
-    "mobx": "^6.9.0",
-    "mobx-react-lite": "^3.4.3",
-    "papua": "^4.2.13",
+    "mobx": "^6.12.0",
+    "mobx-react-lite": "^4.0.5",
+    "papua": "^5.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

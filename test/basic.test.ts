@@ -1,5 +1,5 @@
-import { makeAutoObservable, autorun } from 'mobx'
-import { test, expect, afterEach, vi } from 'vitest'
+import { makeAutoObservable, autorun, IReactionDisposer } from 'mobx'
+import { test, expect, afterEach, vi, Mock } from 'vitest'
 import { nestable, INestedObservableArray } from '../index'
 
 class GenericNestedClass<T> {
@@ -26,7 +26,7 @@ class NestedClass {
 
 class StoreClass {
   count = 0
-  list: INestedObservableArray<unknown, any> | null = null
+  list: INestedObservableArray<unknown, any>
 
   constructor(value: any, type: any) {
     this.list = nestable(value, type)
@@ -39,29 +39,30 @@ class StoreClass {
 }
 
 const consoleWarnMock = vi.fn()
+// eslint-disable-next-line no-console
 console.warn = consoleWarnMock
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const noop = (...values: any[]) => {}
+const noop = (() => {}) as (...values: any[]) => void
 
-let Store
-let countMock
-let dispose
+let countMock: Mock
+let dispose: IReactionDisposer
 
 const createStore = (value: any, type: any) => {
-  Store = new StoreClass(value, type)
+  const Store = new StoreClass(value, type)
 
   countMock = vi.fn(() => {
     noop(Store.count)
   })
 
   dispose = autorun(countMock)
+
+  return Store
 }
 
 afterEach(() => dispose && dispose())
 
 test('Basic store works and export is defined.', () => {
-  createStore([1, 2], NestedClass)
+  const Store = createStore([1, 2], NestedClass)
 
   expect(Store.count).toEqual(0)
   expect(countMock.mock.calls.length).toEqual(1)
@@ -84,7 +85,7 @@ test('Warning if second argument is not a class.', () => {
 })
 
 test('List is added to Store and can be accessed.', () => {
-  createStore([1, 2], NestedClass)
+  const Store = createStore([1, 2], NestedClass)
 
   expect(Store.list).toBeDefined()
   expect(Store.list[0].count).toBe(1)
@@ -93,7 +94,7 @@ test('List is added to Store and can be accessed.', () => {
 })
 
 test('Nested store can be added with extend.', () => {
-  createStore([1, 2], NestedClass)
+  const Store = createStore([1, 2], NestedClass)
 
   Store.list.extend(3)
 
@@ -102,7 +103,7 @@ test('Nested store can be added with extend.', () => {
 })
 
 test('Nested stores can be removed.', () => {
-  createStore([1, 2], NestedClass)
+  const Store = createStore([1, 2], NestedClass)
 
   expect(Store.list.length).toEqual(2)
 
@@ -303,7 +304,7 @@ test('Update method on item can be used to update arbitrary values.', () => {
       { id: '1', color: 'red', speed: 50 },
       { id: '2', color: 'green', speed: 25 },
     ],
-    CarClass
+    CarClass,
   )
 
   expect(list.length).toBe(2)
@@ -381,7 +382,7 @@ test('byId method on list can be used to quickly find an item.', () => {
       { id: '1', color: 'red', speed: 50 },
       { id: '2', color: 'green', speed: 25 },
     ],
-    CarClass
+    CarClass,
   )
 
   expect(list.byId('1').color).toBe('red')
